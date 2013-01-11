@@ -13,11 +13,7 @@
     </libraryPath>
     <sourceAttachmentPath/>
   </compiler>
-  <applications>
-    <application path="StarPractice.mxml">
-      <airExcludes/>
-    </application>
-  </applications>
+  <applications/>
   <modules/>
   <workers/>
   <buildCSSFiles/>
@@ -27,6 +23,10 @@
       <airSettings airCertificatePath="" airTimestamp="true" anePathSet="false" version="1">
         <airExcludes/>
         <anePaths/>
+        <newLaunchParams/>
+        <modifiedLaunchParams/>
+        <newPackagingParams/>
+        <modifiedPackagingParams/>
       </airSettings>
       <actionScriptSettings version="1"/>
     </buildTarget>
