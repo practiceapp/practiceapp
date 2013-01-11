@@ -13,7 +13,11 @@
     </libraryPath>
     <sourceAttachmentPath/>
   </compiler>
-  <applications/>
+  <applications>
+    <application path="StarPractice.mxml">
+      <airExcludes/>
+    </application>
+  </applications>
   <modules/>
   <workers/>
   <buildCSSFiles/>
