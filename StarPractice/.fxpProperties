@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<fxpProperties abbreviated="false" authoringTool="Flex Builder" compiles="true" parentProject="130c9487-e286-4f56-b2cb-16eb20f6f3aa" projectUUID="130c9487-e286-4f56-b2cb-16eb20f6f3aa" pureCatalystProject="false" sdkVersion="4.6.0" uuid="d0d976a9-5830-4470-ac68-0eef3605c0b8" version="15">
+  <projects/>
+  <src/>
+  <swc>
+    <linked location="sdkPlaceHolder" path="sdkPlaceHolder" position="0" uuid="d0d976a9-5830-4470-ac68-0eef3605c0b8"/>
+    <linked location="C:/Users/Nick/Documents/GitHub/practiceapp/libs" path="/libs" position="1" uuid="d0d976a9-5830-4470-ac68-0eef3605c0b8"/>
+    <linked location="C:/Users/Nick/Downloads/as3corelib.swc" path="/linked-swc/as3corelib.swc" position="2" uuid="d0d976a9-5830-4470-ac68-0eef3605c0b8"/>
+  </swc>
+  <misc/>
+  <theme/>
+  <mxmlFormattingPrefs groupAttributesByState="true" maxLineWidth="100" mxmlAlignAttributes="true" mxmlAttributeOrder="id,userLabel,includeIn,excludeFrom,visible,x,y,z,left,right,top,bottom,width,height,minWidth,minHeight,maxWidth,maxHeight,label" mxmlKeepAttributeValuesOrganized="true"/>
+</fxpProperties>

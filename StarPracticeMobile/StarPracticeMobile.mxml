@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Application xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					   xmlns:s="library://ns.adobe.com/flex/spark" 
+					   xmlns:mx="library://ns.adobe.com/flex/mx"
+					   xmlns:sp="appcomponents.*" creationComplete="init()" frameRate="100" >
+	<s:BorderContainer id="container" width="100%" height="100%" />
+	<fx:Script>
+		<![CDATA[
+			import appcomponents.*;
+			
+			private const TEST_FILE:String = "test.pt";
+			
+			private var treeManager:TreeManager;
+			
+			private function init():void
+			{
+				treeManager = new TreeManager(container);
+				
+				var TEST_FILE:String = '{"fileVersion":"0.0.0","appVersion":"0.0.1","name":"Protein Structure",	"desc":"The 3D configuration of proteins arising from chemical interactions","complete":"false","gaps":[{ "name":"Primary Structure", "desc":"Amino acid sequence","complete":"false","gaps":[]},{ "name":"Secondary Structure", "desc":"Hydrogen bonding","complete":"true","gaps":[{ "name":"Hydrogen Bonding","desc":"Large scale interactions","complete":"true","gaps":[]},{ "name":"Hydrogen Bonding 2","desc":"Large scale interactions","complete":"true","gaps":[]}]},{ "name":"Quaternary Structure","desc":"Amino acid sequence","complete":"false","gaps":[]}]}';
+				//FILES LOCATION: C:\Users\Nick\AppData\Roaming\StarPracticeApp\Local Store
+				//if(treeManager.loadTree(File.applicationStorageDirectory.resolvePath(TEST_FILE)))
+				if(treeManager.loadTree(TEST_FILE))
+					trace("file loaded");
+				else
+					trace("file not loaded");
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+</s:Application>
