@@ -2,43 +2,25 @@
 <s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
 					   xmlns:s="library://ns.adobe.com/flex/spark" 
 					   xmlns:mx="library://ns.adobe.com/flex/mx"
-					   xmlns:sp="appcomponents.*" creationComplete="init()">
-	<s:BorderContainer id="container" width="500" height="500" />
+					   xmlns:sp="appcomponents.*" creationComplete="init()" frameRate="60" >
+	<s:BorderContainer id="container" width="100%" height="100%" />
 	<fx:Script>
 		<![CDATA[
 			import appcomponents.*;
 			
 			private const TEST_FILE:String = "test.pt";
 			
-			private var dragManager:TreeDragManager;
 			private var treeManager:TreeManager;
 			
 			private function init():void
 			{
 				treeManager = new TreeManager(container);
-				dragManager = new TreeDragManager(treeManager);
 
 				//FILES LOCATION: C:\Users\Nick\AppData\Roaming\StarPracticeApp\Local Store
 				if(treeManager.loadTree(File.applicationStorageDirectory.resolvePath(TEST_FILE)))
 					trace("file loaded");
 				else
 					trace("file not loaded");
-				
-				var n:int = 0;
-				while(n <= 3)
-				{
-					var elem:TreeElement = new TreeElement
-					elem.x = n*100;
-					elem.y = n*100;
-					elem.setName("Test "+n);
-					elem.setComplete((n%2 == 0 ? true : false));
-					
-					dragManager.registerTreeElement(elem);
-					
-					container.addElement(elem);
-					
-					n++;
-				}
 			}
 		]]>
 	</fx:Script>

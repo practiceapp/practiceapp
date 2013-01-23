@@ -9,7 +9,7 @@ package appcomponents
 	
 	import appcomponents.TreeManager;
 
-	public class TreeDragManager
+	internal class TreeDragManager
 	{
 		private var treeManager:TreeManager;
 		
@@ -25,21 +25,25 @@ package appcomponents
 		
 		private var registeredElements:Array = new Array();
 		
-		private var colliding:Array;
+		private var colliding:Array = new Array();
 		
-		public function TreeDragManager(treeManager:TreeManager)
+		public function TreeDragManager(treeManager:TreeManager,container:BorderContainer)
 		{
 			this.treeManager = treeManager;
-			this.container = treeManager.getCanvas();
+			this.container = container;
 			container.addEventListener(MouseEvent.MOUSE_UP,endDragElem);
 		}
 		
-		public function registerTreeElement(elem:TreeElement):void	//Allows dragging and colliding
+		//Allows dragging and colliding
+		internal function registerTreeElement(elem:TreeElement):void
 		{
-			elem.addEventListener(MouseEvent.MOUSE_DOWN,startDragElem);
+			if(elem.isRootElement())
+				elem.addEventListener(MouseEvent.CLICK,clickElem);
+			else
+				elem.addEventListener(MouseEvent.MOUSE_DOWN,startDragElem);
 			registeredElements.push(elem);
 		}
-		
+
 		public function startDragElem(e:MouseEvent):void
 		{
 			clickCoords = new Point(container.mouseX,container.mouseY);
@@ -51,7 +55,7 @@ package appcomponents
 			container.setElementIndex(draggedElement,container.numElements-1);
 			container.addEventListener(MouseEvent.MOUSE_MOVE,dragMoveElem);
 		}
-		public function dragMoveElem(e:MouseEvent):void
+		internal function dragMoveElem(e:MouseEvent):void
 		{
 			treeManager.removeSnapPreview();
 			draggedElement.x = container.mouseX-elemRelCoords.x;	//Moves element maintaining relative mouse position
@@ -60,38 +64,34 @@ package appcomponents
 			//Make into a dispatch event for processing by not this class
 			if(checkColliding())
 			{
-				treeManager.snapPreviewElement(draggedElement,colliding[1]);	//This should be processed by the not this class
+				treeManager.snapPreviewElement(draggedElement,colliding[1],colliding[0]);	//This should be processed by the not this class
 			}
 		}
-		public function endDragElem(e:MouseEvent):void
+		internal function endDragElem(e:MouseEvent):void
 		{
-			if(draggedElement != null)
-			{
-				draggedElement.mouseEnabled = true;
-				draggedElement.mouseChildren = true;
-			}
+			if(draggedElement == null)
+				return;
+			
+			draggedElement.mouseEnabled = true;
+			draggedElement.mouseChildren = true;
 			container.removeEventListener(MouseEvent.MOUSE_MOVE,dragMoveElem);
-			if(Math.abs(clickCoords.x-container.mouseX) < 1 && Math.abs(clickCoords.y-container.mouseY) < 1)
-			{
-				draggedElement.x = elemCoords.x;	//Slightly unneccessary because moves > 1 when moved and then snapping
-				draggedElement.y = elemCoords.y;
-				clickElem(draggedElement);
-			}
+			if(draggedElement.x == elemCoords.x && draggedElement.y == elemCoords.y)
+				clickElem(null,draggedElement);
 			treeManager.snapElem(draggedElement,colliding[1],colliding[0]);
 			draggedElement = null;
 		}
 		
-		public function dragMouseOver(e:MouseEvent):void
+		internal function dragMouseOver(e:MouseEvent):void
 		{
 		}
-		public function dragMouseOut(e:MouseEvent):void
+		internal function dragMouseOut(e:MouseEvent):void
 		{
 		}
 		
 		private function checkColliding():Boolean		//Returns [true,elem] for collision above, [false,elem] for below
 		{
-			var hitPointTop:Point = new Point(draggedElement.x+(draggedElement.width/2),draggedElement.y-25);
-			var hitPointBot:Point = new Point(draggedElement.x+(draggedElement.width/2),draggedElement.y+draggedElement.height+35);
+			var hitPointTop:Point = new Point(draggedElement.x+(draggedElement.width/2),draggedElement.y-20);
+			var hitPointBot:Point = new Point(draggedElement.x+(draggedElement.width/2),draggedElement.y+draggedElement.height+30);
 			for each(var elem:TreeElement in registeredElements)
 			{
 				if(elem != draggedElement)
@@ -114,8 +114,12 @@ package appcomponents
 			return false;
 		}
 		
-		private function clickElem(elem:TreeElement):void
+		//Manages mouse clicks
+		private function clickElem(e:MouseEvent=null,elem:TreeElement=null):void
 		{
+			if(e != null && elem == null)
+				elem = TreeElement(e.currentTarget);
+			trace("Clicked element "+elem.width);
 		}
 	}
 }

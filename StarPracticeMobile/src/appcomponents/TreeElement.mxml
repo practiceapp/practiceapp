@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				   xmlns:s="library://ns.adobe.com/flex/spark" 
+				   xmlns:mx="library://ns.adobe.com/flex/mx" cornerRadius="10" borderWeight="3" addedToStage="initializeComponent()">
+	<s:layout>
+		<s:BasicLayout />
+	</s:layout>
+	<s:borderStroke>
+		<s:SolidColorStroke id="stroke" weight="3" />
+	</s:borderStroke>
+	<s:RichText maxWidth="200" paddingLeft="10" paddingRight="10" paddingTop="10" paddingBottom="10" id="label" horizontalCenter="0" verticalCenter="0" />
+	<fx:Script>
+		<![CDATA[
+			private var completed:Boolean = false;
+			private var gapname:String = "";
+			private var rootElem:Boolean = false;
+			
+			private var parentNode:TreeElement = null;
+			
+			public function initializeComponent():void
+			{
+				label.text = gapName;
+				
+				if(rootElem)
+					this.styleName = "rootElement";
+				else
+					this.styleName = "basicElement";
+				
+				
+				if(completed)
+				{
+					this.stroke.color = 0x00ff00;
+				}
+				else
+				{
+					this.stroke.color = 0xff6600;
+				}
+			}
+			
+			public function set gapName(gapname:String):void
+			{
+				this.gapname = gapname;
+				if(this.label)
+					this.label.text = gapname;					
+			}
+			public function get gapName():String
+			{
+				return this.gapname;
+			}
+			
+			public function set desc(gapDesc:String):void
+			{
+			}
+			
+			public function set complete(completed:Boolean):void
+			{
+				this.completed = completed;
+				if(this && completed)
+				{
+					this.stroke.color = 0x00ff00;
+				}
+				else if(this)
+				{
+					this.stroke.color = 0xff6600;
+				}		
+			}
+			public function get complete():Boolean
+			{
+				return completed;
+			}
+			
+			public function set parentElement(elem:TreeElement):void
+			{
+				this.parentNode = elem;
+			}
+			public function get parentElement():TreeElement
+			{
+				return parentElement;
+			}
+			
+			public function set rootElement(rootElem:Boolean):void
+			{
+				this.rootElem = rootElem;
+			}
+			public function isRootElement():Boolean
+			{
+				return rootElem;
+			}
+		]]>
+	</fx:Script>
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		.boldText {
+			fontWeight: bold;
+		}
+		.rootElement {
+			dropShadowVisible: false;
+		}
+		.basicElement {
+			dropShadowVisible: true;
+		}
+	</fx:Style>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+</s:BorderContainer>
