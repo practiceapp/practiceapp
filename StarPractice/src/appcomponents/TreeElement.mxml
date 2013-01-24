@@ -12,14 +12,14 @@
 	<fx:Script>
 		<![CDATA[
 			private var completed:Boolean = false;
-			private var gapname:String = "";
+			private var elementName:String = "";
 			private var rootElem:Boolean = false;
 			
 			private var parentNode:TreeElement = null;
 			
 			public function initializeComponent():void
 			{
-				label.text = gapName;
+				label.text = elemName;
 				
 				if(rootElem)
 					this.styleName = "rootElement";
@@ -37,18 +37,18 @@
 				}
 			}
 			
-			public function set gapName(gapname:String):void
+			public function set elemName(setElemName:String):void
 			{
-				this.gapname = gapname;
+				this.elementName = setElemName;
 				if(this.label)
-					this.label.text = gapname;					
+					this.label.text = elementName;					
 			}
-			public function get gapName():String
+			public function get elemName():String
 			{
-				return this.gapname;
+				return this.elementName;
 			}
 			
-			public function set desc(gapDesc:String):void
+			public function set elemDesc(setElemDesc:String):void
 			{
 			}
 			
@@ -75,7 +75,7 @@
 			}
 			public function get parentElement():TreeElement
 			{
-				return parentElement;
+				return parentNode;
 			}
 			
 			public function set rootElement(rootElem:Boolean):void

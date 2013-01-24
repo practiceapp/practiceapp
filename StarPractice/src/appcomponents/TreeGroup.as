@@ -49,6 +49,11 @@ package appcomponents
 			}
 		}
 		
+		internal function nudgeElement(index:uint,offset:int):void
+		{
+			trace("Nudging: "+elems[index].id);
+		}
+		
 		//Returns the parent of the elements in the group
 		internal function get groupParent():TreeElement
 		{

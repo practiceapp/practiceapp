@@ -5,7 +5,7 @@ package appcomponents
 	
 	import mx.core.UIComponent;
 	
-	import spark.components.BorderContainer;
+	import spark.components.Group;
 	
 	import appcomponents.TreeManager;
 
@@ -13,7 +13,7 @@ package appcomponents
 	{
 		private var treeManager:TreeManager;
 		
-		private var container:BorderContainer;
+		private var container:Group;
 		
 		private var clickCoords:Point;	//Coordinates of mouse relative to container
 		private var elemCoords:Point;	//Initial position of dragged element
@@ -27,7 +27,7 @@ package appcomponents
 		
 		private var colliding:Array = new Array();
 		
-		public function TreeDragManager(treeManager:TreeManager,container:BorderContainer)
+		public function TreeDragManager(treeManager:TreeManager,container:Group)
 		{
 			this.treeManager = treeManager;
 			this.container = container;
@@ -57,6 +57,11 @@ package appcomponents
 		}
 		internal function dragMoveElem(e:MouseEvent):void
 		{
+			if(container.getChildByName(draggedElement.id+":line"))
+			{
+				var line:UIComponent = container.getChildByName(draggedElement.id+":line") as UIComponent;
+				container.removeElement(line);
+			}
 			treeManager.removeSnapPreview();
 			draggedElement.x = container.mouseX-elemRelCoords.x;	//Moves element maintaining relative mouse position
 			draggedElement.y = container.mouseY-elemRelCoords.y;
@@ -64,20 +69,37 @@ package appcomponents
 			//Make into a dispatch event for processing by not this class
 			if(checkColliding())
 			{
-				treeManager.snapPreviewElement(draggedElement,colliding[1],colliding[0]);	//This should be processed by the not this class
+				treeManager.snapPreviewElement(draggedElement,colliding);	//This should be processed by the not this class
 			}
 		}
 		internal function endDragElem(e:MouseEvent):void
 		{
 			if(draggedElement == null)
 				return;
-			
 			draggedElement.mouseEnabled = true;
 			draggedElement.mouseChildren = true;
 			container.removeEventListener(MouseEvent.MOUSE_MOVE,dragMoveElem);
 			if(draggedElement.x == elemCoords.x && draggedElement.y == elemCoords.y)
+			{
 				clickElem(null,draggedElement);
-			treeManager.snapElem(draggedElement,colliding[1],colliding[0]);
+			}
+			else if(colliding.length != 0)
+			{
+				if(colliding[1].isRootElement() && colliding[0] == false)
+				{
+					//This should move tree down and make new element root node
+				}
+				else
+				{
+					trace("Start snapping");
+					treeManager.snapElem(draggedElement,colliding[1],colliding[0]);
+				}
+			}
+			else
+			{
+				trace("Abort abort abort");
+				treeManager.undoMove(draggedElement,elemCoords);
+			}
 			draggedElement = null;
 		}
 		
@@ -121,5 +143,7 @@ package appcomponents
 				elem = TreeElement(e.currentTarget);
 			trace("Clicked element "+elem.width);
 		}
+		
+		//Draws a line between two colliding tree elements
 	}
 }
