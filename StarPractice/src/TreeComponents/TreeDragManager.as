@@ -1,19 +1,19 @@
-package appcomponents
+package TreeComponents
 {
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
-	
+
 	import mx.core.UIComponent;
 	
-	import spark.components.BorderContainer;
+	import spark.components.Group;
 	
-	import appcomponents.TreeManager;
+	import TreeComponents.TreeManager;
 
 	internal class TreeDragManager
 	{
 		private var treeManager:TreeManager;
 		
-		private var container:BorderContainer;
+		private var container:Group;
 		
 		private var clickCoords:Point;	//Coordinates of mouse relative to container
 		private var elemCoords:Point;	//Initial position of dragged element
@@ -27,7 +27,7 @@ package appcomponents
 		
 		private var colliding:Array = new Array();
 		
-		public function TreeDragManager(treeManager:TreeManager,container:BorderContainer)
+		public function TreeDragManager(treeManager:TreeManager,container:Group)
 		{
 			this.treeManager = treeManager;
 			this.container = container;
@@ -57,6 +57,12 @@ package appcomponents
 		}
 		internal function dragMoveElem(e:MouseEvent):void
 		{
+			if(container.getChildByName(draggedElement.id+":line"))
+			{
+				var line:UIComponent = container.getChildByName(draggedElement.id+":line") as UIComponent;
+				container.removeElement(line);
+			}
+		
 			treeManager.removeSnapPreview();
 			draggedElement.x = container.mouseX-elemRelCoords.x;	//Moves element maintaining relative mouse position
 			draggedElement.y = container.mouseY-elemRelCoords.y;
@@ -64,20 +70,35 @@ package appcomponents
 			//Make into a dispatch event for processing by not this class
 			if(checkColliding())
 			{
-				treeManager.snapPreviewElement(draggedElement,colliding[1],colliding[0]);	//This should be processed by the not this class
+				treeManager.snapPreviewElement(draggedElement,colliding);	//This should be processed by the not this class
 			}
 		}
 		internal function endDragElem(e:MouseEvent):void
 		{
 			if(draggedElement == null)
 				return;
-			
 			draggedElement.mouseEnabled = true;
 			draggedElement.mouseChildren = true;
 			container.removeEventListener(MouseEvent.MOUSE_MOVE,dragMoveElem);
 			if(draggedElement.x == elemCoords.x && draggedElement.y == elemCoords.y)
+			{
 				clickElem(null,draggedElement);
-			treeManager.snapElem(draggedElement,colliding[1],colliding[0]);
+			}
+			else if(colliding.length != 0)
+			{
+				if(colliding[1].isRootElement() && colliding[0] == false)
+				{
+					//This should move tree down and make new element root node
+				}
+				else
+				{
+					treeManager.snapElem(draggedElement,colliding[1],colliding[0]);
+				}
+			}
+			else
+			{
+				treeManager.undoMove(draggedElement,elemCoords);
+			}
 			draggedElement = null;
 		}
 		
@@ -90,8 +111,8 @@ package appcomponents
 		
 		private function checkColliding():Boolean		//Returns [true,elem] for collision above, [false,elem] for below
 		{
-			var hitPointTop:Point = new Point(draggedElement.x+(draggedElement.width/2),draggedElement.y-20);
-			var hitPointBot:Point = new Point(draggedElement.x+(draggedElement.width/2),draggedElement.y+draggedElement.height+30);
+			var hitPointTop:Point = new Point(draggedElement.x+(draggedElement.width/2),draggedElement.y-20);	//Hits objects above dragged elem
+			var hitPointBot:Point = new Point(draggedElement.x+(draggedElement.width/2),draggedElement.y+draggedElement.height/2);	//Hits objects that are overlapping the center of the element
 			for each(var elem:TreeElement in registeredElements)
 			{
 				if(elem != draggedElement)
@@ -121,5 +142,7 @@ package appcomponents
 				elem = TreeElement(e.currentTarget);
 			trace("Clicked element "+elem.width);
 		}
+		
+		//Draws a line between two colliding tree elements
 	}
 }
