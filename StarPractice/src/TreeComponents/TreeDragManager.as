@@ -1,13 +1,13 @@
-package appcomponents
+package TreeComponents
 {
 	import flash.events.MouseEvent;
 	import flash.geom.Point;
-	
+
 	import mx.core.UIComponent;
 	
 	import spark.components.Group;
 	
-	import appcomponents.TreeManager;
+	import TreeComponents.TreeManager;
 
 	internal class TreeDragManager
 	{
@@ -62,6 +62,7 @@ package appcomponents
 				var line:UIComponent = container.getChildByName(draggedElement.id+":line") as UIComponent;
 				container.removeElement(line);
 			}
+		
 			treeManager.removeSnapPreview();
 			draggedElement.x = container.mouseX-elemRelCoords.x;	//Moves element maintaining relative mouse position
 			draggedElement.y = container.mouseY-elemRelCoords.y;
@@ -91,13 +92,11 @@ package appcomponents
 				}
 				else
 				{
-					trace("Start snapping");
 					treeManager.snapElem(draggedElement,colliding[1],colliding[0]);
 				}
 			}
 			else
 			{
-				trace("Abort abort abort");
 				treeManager.undoMove(draggedElement,elemCoords);
 			}
 			draggedElement = null;
@@ -112,8 +111,8 @@ package appcomponents
 		
 		private function checkColliding():Boolean		//Returns [true,elem] for collision above, [false,elem] for below
 		{
-			var hitPointTop:Point = new Point(draggedElement.x+(draggedElement.width/2),draggedElement.y-20);
-			var hitPointBot:Point = new Point(draggedElement.x+(draggedElement.width/2),draggedElement.y+draggedElement.height+30);
+			var hitPointTop:Point = new Point(draggedElement.x+(draggedElement.width/2),draggedElement.y-20);	//Hits objects above dragged elem
+			var hitPointBot:Point = new Point(draggedElement.x+(draggedElement.width/2),draggedElement.y+draggedElement.height/2);	//Hits objects that are overlapping the center of the element
 			for each(var elem:TreeElement in registeredElements)
 			{
 				if(elem != draggedElement)

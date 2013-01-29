@@ -1,4 +1,4 @@
-package appcomponents
+package TreeComponents
 {
 	import com.adobe.serialization.json.JSON;
 	
@@ -10,8 +10,6 @@ package appcomponents
 	import mx.core.UIComponent;
 	
 	import spark.components.Group;
-	
-	import appcomponents.TreeGroup;
 
 	public class TreeManager
 	{
@@ -23,13 +21,16 @@ package appcomponents
 		
 		private var snapPreviewLine:UIComponent;
 		
-		private var groupManager:TreeGroupManager;
+		private var treeRoot:TreeElement;
+		
+		private var partManager:TreePartManager;
 		
 		
 		//Manages the structure, storage, and graphical representation of the tree
 		public function TreeManager(container:Group)
 		{
 			dragManager = new TreeDragManager(this,container);
+			partManager = new TreePartManager();
 			this.container = container;
 		}
 		
@@ -46,90 +47,72 @@ package appcomponents
 			
 			var tree:Object = com.adobe.serialization.json.JSON.decode(fstream.readUTFBytes(fstream.bytesAvailable));
 			
-			var rootElem:TreeElement = new TreeElement();	//Create the tree root element and group manager
+			var rootElem:TreeElement = new TreeElement();	//Create the tree root element
 			rootElem.parentElement = null;
 			rootElem.elemName = tree.name;
 			rootElem.rootElement = true;
+			rootElem.id = "root";
 			rootElem.complete = tree.complete == "true" ? true : false;
 			container.addElement(rootElem);
 			dragManager.registerTreeElement(rootElem);
-			groupManager = new TreeGroupManager(rootElem);
+			treeRoot = rootElem;
 			
 			createElements(tree.gaps,rootElem);
 			
-			container.callLater(drawElements);
+			container.callLater(makeTree);
 
 			return true;
 		}
 		
 		//Create elements and populate tree groups
-		private function createElements(gaps:Array,parent:TreeElement,iteration:uint=0):void
-		{	
-			var group:TreeGroup = new TreeGroup(parent);	
-			
-			for(var n:uint = 0;n<gaps.length;n++)
+		//Lower indexed groups are at the bottom of the tree
+		private function createElements(elements:Array,parent:TreeElement,iteration:uint=0):void
+		{
+			for(var n:uint = 0;n<elements.length;n++)
 			{
 				var elem:TreeElement = new TreeElement();
-				elem.id = iteration+"."+n;
+				var treePart:TreePart = new TreePart(elem,parent,iteration+1);
+				partManager.add(treePart);
+				elem.id = parent.id+"/"+n;
+				elem.elemName = elements[n].name;
+				elem.elemDesc = elements[n].desc;
+				elem.complete = elements[n].complete == "true" ? true : false;
 				elem.parentElement = parent;
-				elem.elemName = gaps[n].name;
-				elem.elemDesc = gaps[n].desc;
-				elem.complete = gaps[n].complete == "true" ? true : false;
 				container.addElement(elem);
-				group.add(elem);
 				dragManager.registerTreeElement(elem);
-				if(gaps[n].gaps.length != 0)
-					createElements(gaps[n].gaps,elem,iteration+1);
+				if(elements[n].gaps.length != 0)
+					createElements(elements[n].gaps,elem,iteration+1);
 			}
-			groupManager.add(group);
 		}
-		//Positions and draws the elements onscreen
-		private function drawElements():void
+		
+		private function makeTree():void
 		{
-			var root:TreeElement = groupManager.root;
-			root.x = container.width/2-root.width/2;
-			root.y = 15;
+			var rootPart:TreePart = new TreePart(treeRoot,null,0);
+			partManager.add(rootPart);
+			rootPart.x = (container.width-treeRoot.width)/2;
+			rootPart.y = 15;
 			
-			var groups:Array = groupManager.groups;
-			for(var i:int=groups.length-1;i >= 0;i--)
+			var partslist:Array = partManager.list;
+			var linearparts:Array = new Array();
+			for(var i:int=partslist.length-1;i>0;i--)
+				for(var n:uint=0;n<partslist[i].length;n++)
+				{
+					partManager.getPartByElement(partslist[i][n].parent).merge(partslist[i][n]);
+					linearparts.push(partslist[i][n]);
+				}
+			
+			if((partslist[0][0].x+partslist[0][0].partElement.width/2-partslist[0][0].width/2) <= 0)
+				partslist[0][0].x = partslist[0][0].x - (partslist[0][0].x+partslist[0][0].partElement.width/2-partslist[0][0].width/2)+50;
+			
+			for(var y:uint=0;y<linearparts.length;y++)
 			{
-				var parent:TreeElement = groups[i].groupParent;
-				var elements:Array = groups[i].elements;
-				
-				if(elements.length%2 == 0 || elements.length == 1)	//For even itemed groups or groups with one element, center the groups about the parent's x coordinate
-				{
-					groups[i].x = parent.x+parent.width/2-groups[i].width/2;
-				}
-				else	//For odd itemed groups, center the middle element with the parent's x coordinate
-				{
-					var median:uint = Math.floor(elements.length/2)+1;
-					var lwidth:uint = 0;
-					for(var n:uint=0;n<median-1;n++)
-						lwidth += elements[n].width+16;
-					lwidth += elements[median].width/2;
-
-					groups[i].x = parent.x+parent.width/2-lwidth;
-				}
-				groups[i].y = parent.y+parent.height+16;
-			}
-			trace(groupManager.getGroupBoundsX(groups[0]));
-			
-			
-			//Draw lines
-			for(var y:uint=0;y<groups.length;y++)
-			{
-				elements = groups[y].elements;
-				parent = groups[y].groupParent;
-				for(var z:uint=0;z<elements.length;z++)
-				{
-					var line:UIComponent = new UIComponent();
-					line.graphics.lineStyle(3,0x444444,1);
-					line.name = elements[z].id+":line";
-					line.graphics.moveTo(elements[z].x+elements[z].width/2,elements[z].y+2);
-					line.graphics.lineTo(parent.x+parent.width/2,parent.y+parent.height-1);
-					container.addElement(line);
-					container.setElementIndex(line,0);
-				}
+				var line:UIComponent = new UIComponent();
+				line.graphics.lineStyle(3,0x444444,1);
+				line.name = linearparts[y].partElement.id+":line";
+				line.graphics.moveTo(linearparts[y].partElement.x+linearparts[y].partElement.width/2,linearparts[y].partElement.y+2);
+				line.graphics.lineTo(linearparts[y].parent.x+linearparts[y].parent.width/2,linearparts[y].parent.y+linearparts[y].parent.height-1);
+				container.addElement(line);
+				container.setElementIndex(line,0);
 			}
 		}
 		internal function snapPreviewElement(draggedElement:TreeElement,colliding:Array):void
@@ -149,8 +132,9 @@ package appcomponents
 			}
 			else
 			{
-				line.graphics.moveTo(draggedElement.x+(draggedElement.width/2),draggedElement.y+draggedElement.height);
-				line.graphics.lineTo(collidingElement.x+(collidingElement.width/2),collidingElement.y);
+				trace("Swap dragged element with colliding element and make colliding element child of dragged");
+				//line.graphics.moveTo(draggedElement.x+(draggedElement.width/2),draggedElement.y+draggedElement.height);
+				//line.graphics.lineTo(collidingElement.x+(collidingElement.width/2),collidingElement.y);
 			}
 			container.addElement(line);
 			snapPreviewLine = line;
@@ -178,8 +162,8 @@ package appcomponents
 			var line:UIComponent = new UIComponent();
 			line.name = draggedElement.id+":line";
 			line.graphics.lineStyle(3,0x444444,1);
-			line.graphics.moveTo(draggedElement.x+(draggedElement.width/2),draggedElement.y);
-			line.graphics.lineTo(draggedElement.parentElement.x+draggedElement.parentElement.width/2,draggedElement.parentElement.y+draggedElement.parentElement.height);
+			line.graphics.moveTo(draggedElement.x+(draggedElement.width/2),draggedElement.y+2);
+			line.graphics.lineTo(draggedElement.parentElement.x+draggedElement.parentElement.width/2,draggedElement.parentElement.y+draggedElement.parentElement.height-1);
 			container.addElement(line);
 			container.setElementIndex(line,0);
 		}	

@@ -1,14 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <s:BorderContainer xmlns:fx="http://ns.adobe.com/mxml/2009" 
 				   xmlns:s="library://ns.adobe.com/flex/spark" 
-				   xmlns:mx="library://ns.adobe.com/flex/mx" cornerRadius="10" borderWeight="3" addedToStage="initializeComponent()">
-	<s:layout>
-		<s:BasicLayout />
-	</s:layout>
+				   xmlns:mx="library://ns.adobe.com/flex/mx" cornerRadius="10" maxWidth="200" borderWeight="3" addedToStage="initializeComponent()">
 	<s:borderStroke>
 		<s:SolidColorStroke id="stroke" weight="3" />
 	</s:borderStroke>
-	<s:RichText maxWidth="200" paddingLeft="10" paddingRight="10" paddingTop="10" paddingBottom="10" id="label" horizontalCenter="0" verticalCenter="0" />
+	<s:Label maxWidth="200" paddingLeft="10" paddingRight="10" paddingTop="10" paddingBottom="10" id="label" horizontalCenter="0" verticalCenter="0" />
 	<fx:Script>
 		<![CDATA[
 			private var completed:Boolean = false;
@@ -69,16 +66,16 @@
 				return completed;
 			}
 			
-			public function set parentElement(elem:TreeElement):void
+			internal function set parentElement(elem:TreeElement):void
 			{
 				this.parentNode = elem;
 			}
-			public function get parentElement():TreeElement
+			internal function get parentElement():TreeElement
 			{
 				return parentNode;
 			}
 			
-			public function set rootElement(rootElem:Boolean):void
+			internal function set rootElement(rootElem:Boolean):void
 			{
 				this.rootElem = rootElem;
 			}
